@@ -1,0 +1,7 @@
+## Interface: 16001
+## Version: 0.1.0
+## Title: Mini Tweaker
+## Notes: Small tweaks to the default UI: micro menu, bag bar, chat and target frame. Options: /minitweaker or /mtw
+## SavedVariables: MiniTweakerDB
+
+mini_tweaker.lua

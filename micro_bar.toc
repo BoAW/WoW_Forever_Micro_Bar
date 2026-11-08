@@ -1,7 +1,0 @@
-## Interface: 16001
-## Version: 0.1.0
-## Title: Micro Bar
-## Notes: Removes the background art behind the micro menu and bag bars, with round bag slots. Options: /microbar
-## SavedVariables: MicroBarDB
-
-micro_bar.lua
