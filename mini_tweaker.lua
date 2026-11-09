@@ -569,7 +569,37 @@ local function SetupZoneLevels()
     UpdateZoneLevels()
 end
 
+-- The gryphons at the ends of the main action bar.
+local function SetGryphonHidden(capKey, hidden)
+    local endCaps = MainActionBar and MainActionBar.EndCaps
+    if not endCaps then
+        print("Mini Tweaker: MainActionBar.EndCaps was not found.")
+        return
+    end
+    SetArtHidden(endCaps[capKey], "MainActionBar.EndCaps." .. capKey, "Texture", hidden)
+end
+
 local OPTIONS = {
+    {
+        key = "hideLeftGryphon",
+        area = "Action bar",
+        label = "Hide left gryphon",
+        tooltip = "Removes the gryphon at the left end of the main action bar.",
+        default = false,
+        apply = function(value)
+            SetGryphonHidden("LeftEndCap", value)
+        end,
+    },
+    {
+        key = "hideRightGryphon",
+        area = "Action bar",
+        label = "Hide right gryphon",
+        tooltip = "Removes the gryphon at the right end of the main action bar.",
+        default = false,
+        apply = function(value)
+            SetGryphonHidden("RightEndCap", value)
+        end,
+    },
     {
         key = "hideMicroMenuArt",
         area = "Micro menu",
@@ -662,7 +692,7 @@ local OPTIONS = {
 }
 
 -- Each area is its own page under Mini Tweaker in the settings list, in this order.
-local AREA_ORDER = { "Micro menu", "Bag bar", "Chat", "Target frame", "Nameplates", "World map" }
+local AREA_ORDER = { "Action bar", "Micro menu", "Bag bar", "Chat", "Target frame", "Nameplates", "World map" }
 
 -- Runs after Blizzard's UpdateDividers, which shows the lines between the bag slots
 -- again on every layout. Only the frames are hidden, so Blizzard's pools stay untouched.
