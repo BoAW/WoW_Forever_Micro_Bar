@@ -1,0 +1,16 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <!-- A row of plain, wrapping text in the settings list. The text is set in options.lua. -->
+    <Frame name="MiniTweakerSettingsTextTemplate" virtual="true">
+        <Size y="64"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString parentKey="Text" inherits="GameFontHighlight" justifyH="LEFT" justifyV="TOP">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="37" y="-4"/>
+                        <Anchor point="RIGHT" x="-20"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+</Ui>

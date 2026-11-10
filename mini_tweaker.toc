@@ -4,4 +4,14 @@
 ## Notes: Small tweaks to the default UI: micro menu, bag bar, chat and target frame. Options: /minitweaker or /mtw
 ## SavedVariables: MiniTweakerDB
 
-mini_tweaker.lua
+core.lua
+data\zone_levels.lua
+action_bar.lua
+bag_bar.lua
+micro_menu.lua
+chat.lua
+quest_markers.lua
+world_map.lua
+minimap_button.lua
+templates.xml
+options.lua
