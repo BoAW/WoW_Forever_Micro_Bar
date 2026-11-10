@@ -373,6 +373,7 @@ local ZONE_LEVELS = {
     ["Un'Goro Crater"] = { 48, 55 },
     ["Silithus"] = { 55, 60 },
     ["Winterspring"] = { 55, 60 },
+    ["Mount Hyjal"] = { 60 },
 }
 
 -- The game's own levels when it has them, otherwise the list above.
@@ -386,7 +387,7 @@ local function GetZoneLevels(zone)
     end
     local levels = ZONE_LEVELS[zone.name]
     if levels then
-        return levels[1], levels[2]
+        return levels[1], levels[2] or levels[1]
     end
 end
 
