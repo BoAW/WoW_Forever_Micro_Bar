@@ -199,11 +199,73 @@ local function SetupZoneLevels()
     ns.UpdateZoneLevels()
 end
 
+-- Known and, if chosen, undiscovered flight paths on the zone maps where the game itself does not show them
+-- (C_TaxiMap.ShouldMapShowTaxiNodes is false there on this server). Built on the
+-- game's own provider and pins, so icons, tooltips and map tracking stay the same.
+local flightPathProvider
+
+local function SetupFlightPaths()
+    flightPathProvider = CreateFromMixins(FlightPointDataProviderMixin)
+
+    function flightPathProvider:RemoveAllData()
+        self:GetMap():RemoveAllPinsByTemplate("MiniTweakerFlightPointPinTemplate")
+    end
+
+    function flightPathProvider:RefreshAllData()
+        self:RemoveAllData()
+        local showKnown = MiniTweakerDB.knownFlightPathsOnMap
+        local showUndiscovered = MiniTweakerDB.undiscoveredFlightPathsOnMap
+        if not (showKnown or showUndiscovered) then
+            return
+        end
+
+        local mapID = self:GetMap():GetMapID()
+        local mapInfo = mapID and C_Map.GetMapInfo(mapID)
+        -- Where the game shows them, its own provider already draws them.
+        if not (mapInfo and mapInfo.mapType == Enum.UIMapType.Zone)
+            or C_TaxiMap.ShouldMapShowTaxiNodes(mapID) then
+            return
+        end
+
+        local factionGroup = UnitFactionGroup("player")
+        for _, taxiNodeInfo in ipairs(C_TaxiMap.GetTaxiNodesForMap(mapID) or {}) do
+            local wanted = taxiNodeInfo.isUndiscovered and showUndiscovered
+                or not taxiNodeInfo.isUndiscovered and showKnown
+            if wanted and self:ShouldShowTaxiNode(factionGroup, taxiNodeInfo) then
+                if taxiNodeInfo.isUndiscovered then
+                    -- The same tooltip text as the game's own provider gives them.
+                    if taxiNodeInfo.faction == Enum.FlightPathFaction.Horde then
+                        taxiNodeInfo.description = UNDISCOVERED_FACTION_FLIGHTPOINT:format(FACTION_HORDE)
+                    elseif taxiNodeInfo.faction == Enum.FlightPathFaction.Alliance then
+                        taxiNodeInfo.description = UNDISCOVERED_FACTION_FLIGHTPOINT:format(FACTION_ALLIANCE)
+                    else
+                        taxiNodeInfo.description = UNDISCOVERED_NEUTRAL_FLIGHTPOINT
+                    end
+                end
+                self:GetMap():AcquirePin("MiniTweakerFlightPointPinTemplate", taxiNodeInfo)
+            end
+        end
+    end
+
+    WorldMapFrame:AddDataProvider(flightPathProvider)
+end
+
+function ns.UpdateFlightPaths()
+    if flightPathProvider and flightPathProvider:GetMap() then
+        flightPathProvider:RefreshAllData()
+    end
+end
+
+local function SetupMap()
+    SetupZoneLevels()
+    SetupFlightPaths()
+end
+
 function ns.SetupWorldMap()
     -- The world map is loaded on demand in some game versions.
     if WorldMapFrame then
-        SetupZoneLevels()
+        SetupMap()
     else
-        EventUtil.ContinueOnAddOnLoaded("Blizzard_WorldMap", SetupZoneLevels)
+        EventUtil.ContinueOnAddOnLoaded("Blizzard_WorldMap", SetupMap)
     end
 end

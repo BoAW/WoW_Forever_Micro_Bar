@@ -78,6 +78,15 @@ local OPTIONS = {
         apply = ns.SetMenuNotificationHidden,
     },
     {
+        key = "hideShopNotification",
+        area = "Micro menu",
+        label = "Hide marker on the shop button",
+        tooltip = "Removes the small marker on the shop button that appears when the shop has new products.",
+        default = true,
+        createPreview = ns.CreateShopMarkerPreview,
+        apply = ns.SetShopNotificationHidden,
+    },
+    {
         key = "hideChatChannelButton",
         area = "Chat",
         label = "Hide chat channel button",
@@ -96,6 +105,14 @@ local OPTIONS = {
         tooltip = "Shows your threat on the target frame as a percentage while you are in combat with it.",
     },
     {
+        key = "sellJunkWithoutConfirmation",
+        area = "Merchant",
+        label = "Sell junk without asking",
+        tooltip = "Sells all junk items at once when you click Sell All Junk Items, without the Yes/No question.",
+        default = true,
+        apply = ns.SetSellJunkWithoutConfirmation,
+    },
+    {
         key = "questMobMarkers",
         area = "Nameplates",
         label = "Mark quest mobs",
@@ -111,6 +128,26 @@ local OPTIONS = {
         default = true,
         apply = function()
             ns.UpdateZoneLevels()
+        end,
+    },
+    {
+        key = "knownFlightPathsOnMap",
+        area = "World map",
+        label = "Show known flight paths",
+        tooltip = "Shows the flight paths you know on the zone maps.",
+        default = true,
+        apply = function()
+            ns.UpdateFlightPaths()
+        end,
+    },
+    {
+        key = "undiscoveredFlightPathsOnMap",
+        area = "World map",
+        label = "Show undiscovered flight paths",
+        tooltip = "Shows the flight paths you have not found yet on the zone maps.",
+        default = false,
+        apply = function()
+            ns.UpdateFlightPaths()
         end,
     },
 }
@@ -195,8 +232,14 @@ local function RegisterSettings()
         end
     end
 
+    -- The area each Mini Tweaker page belongs to; the Mini Tweaker page itself has none.
+    local pageAreas = { [category] = false }
+    local pagesByArea = {}
+
     for _, area in ipairs(GetAreas()) do
         local subcategory = Settings.RegisterVerticalLayoutSubcategory(category, area)
+        pageAreas[subcategory] = area
+        pagesByArea[area] = subcategory
         for _, option in ipairs(OPTIONS) do
             if option.area == area then
                 AddCheckbox(subcategory, option)
@@ -206,8 +249,18 @@ local function RegisterSettings()
 
     Settings.RegisterAddOnCategory(category)
 
+    -- Remember the last Mini Tweaker page chosen, also across reloads, so the
+    -- minimap button and /mtw open it again instead of the Mini Tweaker page.
+    EventRegistry:RegisterCallback("Settings.CategoryChanged", function(_, changedCategory)
+        local area = pageAreas[changedCategory]
+        if area ~= nil then
+            MiniTweakerDB.lastSettingsPage = area or nil
+        end
+    end, pageAreas)
+
     function ns.OpenSettings()
-        Settings.OpenToCategory(category:GetID())
+        local page = pagesByArea[MiniTweakerDB.lastSettingsPage] or category
+        Settings.OpenToCategory(page:GetID())
     end
 
     SLASH_MINITWEAKER1 = "/minitweaker"
@@ -223,6 +276,7 @@ loader:SetScript("OnEvent", function()
     ns.SetupBagBar()
     ns.SetupMicroMenu()
     ns.SetupWorldMap()
+    ns.SetupMerchant()
 
     -- Registering a setting also fills in its default value in MiniTweakerDB.
     RegisterSettings()

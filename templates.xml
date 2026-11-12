@@ -13,4 +13,8 @@
             </Layer>
         </Layers>
     </Frame>
+
+    <!-- The game's flight point pin under a name of its own, so the game and world_map.lua
+         each remove only their own pins (the map removes pins by template name). -->
+    <Frame name="MiniTweakerFlightPointPinTemplate" inherits="FlightPointPinTemplate" virtual="true"/>
 </Ui>
